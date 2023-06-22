@@ -1,0 +1,222 @@
+
+general graph to know ur test : [lec 9 - page: 68][lec 10 ]
+
+
+statical hypothesis testing frame work : [lec 5 - page: 103]
+
+
+assessing the normality : [lec 5 - page: 104]
+
+
+assessing the 
+
+
+two-sample design vs paired design : [lec 7 - page: 38]
+
+
+######## CODE #########
+# MALES ONLY
+# FEMALES ONLY 
+install.packages("magrittr") # package installations are only needed the first time you use it
+install.packages("dplyr")    # alternative installation of the %>%
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+female_MAXFWT <- lead %>% filter(Sex == "Female") %>% pull(Sex)
+
+male_MAXFWT <- lead %>% filter(Sex == "Male") %>% pull(Sex)
+
+female_MAXFWT
+male_MAXFWT
+
+
+
+# two sample t test WRONG
+#lead$Ld72[lead$Ld72 > 40] <-"greater"
+#lead$Ld72[lead$Ld72 <= 40] <-"smaller"
+#t.test(lead$MAXFWT ~ lead$Ld72,var.equal = F, paired = F)
+
+
+############   WORK   ####################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Question 6: hypothesis testing:
+
+
+# NOTES:
+
+# [ 1 ]
+# ( MAXFWT ) when is higher is better  
+# MAXFWT different between male vs female 
+# assumptions 
+# Assume normality and homoscedasticity 
+# biological question: gender type don't affect the finger-wrist tapping score(MAXFWT)
+# statistical  question: value of (MAXFWT) is equal in both female and male
+# null hypothesis (H0) :  MAXFWT is equal for male and female
+# alternative hypothesis (HA) : MAXFWT  different between male and female
+# data handling:
+# convert NA to zero in MAXFWT column 
+lead =get(load("lead.RData"))
+lead[is.na(lead)]=0
+#install.packages("magrittr") # package installations are only needed the first time you use it
+#install.packages("dplyr")    # alternative installation of the %>%
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+# put MAXFWT male's data in new variable  and the MAXFWT female's data in new variable 
+#male_MAXFWT <- lead$MAXFWT[lead$Sex == "Male"]
+male_MAXFWT <- lead %>% filter(Sex == "Male") %>% pull(MAXFWT)
+male_MAXFWT
+
+female_MAXFWT <- lead %>% filter(Sex == "Female") %>% pull(MAXFWT)
+female_MAXFWT
+# view mean
+mean(male_MAXFWT)
+mean(female_MAXFWT)
+# [ two sample t-test ] we will make the variance = true 
+#t.test(lead$MAXFWT ~ lead$Sex, var.equal = T, paired = F)
+t.test(male_MAXFWT, female_MAXFWT,var.equal = T, paired = F )
+
+# [ 2 ]
+# Assess whether the previous test assumptions have been meet for the test.
+# p.value = 0.2318, which is greater than the alpha = 0.05 (0.05 < 0.2318), #############################      #######
+# so we don't have enough evidence to reject the null hypothesis            #############################      #######
+
+
+
+#########
+
+
+# [ 3 ]
+# (2 groups) MAXFWT is “lower” in [[ Ld72 > 40 ]] compared to [[  Ld72 =< 40 ]]
+# we will use Two-sample Welch t-test and make the variance = False 
+# create two variable for [[ Ld72 > 40 ]] and [[  Ld72 =< 40 ]]
+# Assumptions
+# Assume normality and homoscedasticity 
+# biological question:  children who have high value of Ld72 suffer from low score of finger-wrist tapping(variable name: MAXFWT)
+# statistical  question: when the value of ld72 is more than 40 the child will have lower value of MAXFWT compared to childern with 
+# null hypothesis: state that MAXWT is “equal” in the group receiving Ld72 > 40 and  Ld72 =< 40
+# alternative hypothesis: MAXWT is “lower” in the group receiving Ld72 > 40  compared to the control Ld72 =< 40.
+
+# data manipulation
+lead =get(load("lead.RData"))
+lead[is.na(lead)]=0
+
+Ld72_greater_than_40 <- lead$Ld72[lead$Ld72 > 40]
+Ld72_greater_than_40
+Ld72_smaller_or_equal_than_40 <- lead$Ld72[lead$Ld72 <= 40]
+Ld72_smaller_or_equal_than_40
+# view data 
+Ld72_greater_than_40
+Ld72_smaller_or_equal_than_40
+# mean of the data 
+mean(Ld72_smaller_or_equal_than_40)
+mean(Ld72_greater_than_40)
+# [ two sample Welch t-test ]
+# Two-sample Welch t-test and make the variance = false
+t.test(Ld72_greater_than_40, Ld72_smaller_or_equal_than_40, alternative = "two.sided", var.equal = FALSE )
+
+# [ 4 ]
+# Assess the previous test assumption
+# p.value = 9.916e-09 = 0.000000009916
+# p-value = 0.000000009916 < alpha = 0.05
+# so we have enough evidence to reject the null hypothesis 
+# And accept the alternative hypothesis which that "MAXWT is “lower” in the group receiving Ld72 > 40  compared to the control Ld72 =< 40."
+# so the assumption of the question is true
+
+
+#########
+
+# [ 5 ]
+# •	We hypothesis that MAXWT is different between the different Lead types with the different genders  
+# (i.e. 4 groups male_leadtype1, male_leadtype2, female_leadtype1, female_leadtype2). 
+# Can you perform comparison between the different groups, after assessing the assumptions and performing post-hoc testing 
+# (assuming normality and homoscedasticity).
+
+# [ type of test used ]
+# to know which test will be used we need to first specify the number of independent variables
+# we have one independent variable (MAXFWT) that will compare its value to each group
+# one-way ANOVA will be used, because we have only one independent variable ( MAXFWT )
+
+# [ Assumptions ]
+# we will assume normally and homoscedasticity in the data as mentioned in the hypothesis question
+# which means that The variable (MAXFWT) is normally distributed in each (group) population
+# The variances are equal among all statistical populations from which the (groups) were sampled
+
+# [ Data manipulation ]
+# convert any NA value to zero
+lead =get(load("lead.RData"))
+lead[is.na(lead)]=0
+install.packages("magrittr") # package installations are only needed the first time you use it
+install.packages("dplyr")    # alternative installation of the %>%
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+# filter and put data in new variables
+male_lead_72 <- lead %>% filter(Sex == "Male" , Lead_type == "Ld72") %>% pull(MAXFWT)
+male_lead_72
+
+female_lead_72 <- lead %>% filter(Sex == "Female" , Lead_type == "Ld72") %>% pull(MAXFWT)
+female_lead_72
+
+male_lead_73 <- lead %>% filter(Sex == "Male" , Lead_type == "Ld73") %>% pull(MAXFWT)
+male_lead_73
+
+female_lead_73 <- lead %>% filter(Sex == "Female" , Lead_type == "Ld73") %>% pull(MAXFWT)
+female_lead_73
+# make the length of all columns equal in length by adding NA 
+length(female_lead_72) <- length(male_lead_72)
+length(male_lead_73) <- length(male_lead_72)
+length(female_lead_73) <- length(male_lead_72)
+# convert any NA value to zero
+female_lead_72[is.na(female_lead_72)]=0
+male_lead_73[is.na(male_lead_73)]=0
+female_lead_73[is.na(female_lead_73)]=0
+# put data in data frame format so the gather() can accept it 
+total_groups <- data.frame(male_lead_72, female_lead_72, male_lead_73, female_lead_73)
+total_groups
+# convert wide data frame shape to long data frame shape 
+library(tidyr)
+groups_compare <- gather(total_groups, key="group", value="amount",male_lead_72, female_lead_72, male_lead_73, female_lead_73)
+groups_compare
+
+
+# biological question : does the lead type and the gender type don't affect the finger-wrist tapping score (MAXFWT)
+# statistical question : does the change in lead and gender types and values don't affect the MAXFW value ?
+# Null hypothesis : the (MAXFWT) have the same value between the different Lead types with the different genders 
+# Alternative hypothesis : the (MAXFWT) is different between the different Lead types with the different genders 
+
+# [ one-way ANOVA test ]
+anova_model <- aov(amount ~ group, data = groups_compare)
+summary(anova_model)
+# p.value = 2*10^-16 = 0.0000000000002
+# P.value < 0.05, so we have enough evidence to reject the Null hypothesis which state that " the (MAXFWT) have the same value between the different Lead types with the different genders "
+# this means that we have enough evidence to accept the alternative hypothesis which represent the hypothesis of the question, state that " the (MAXFWT) is different between the different
+# Lead types with the different genders " this statement is true, but before state that its true we need to check with post-hoc test and see which group comparison have p.value less than the alpha 
+ 
+
+# [ post-hoc testing ]
+# Tukey’s Test will be used to make every possible pairwise comparison
+# Tukey's test help us identify which group have different (MAXFWT), by comparing the p.value of each comparison to the alpha 
+TukeyHSD(anova_model, conf.level=.95) 
+plot(TukeyHSD(anova_model, conf.level=.95))
+# we can see that all of the groups p.value is smaller than the alpha except one so we can  that the ANOVA test is 
+# correct and the alternative hypothesis is true
+
+
